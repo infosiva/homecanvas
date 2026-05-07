@@ -23,13 +23,13 @@ export default function HomePage() {
     <div className="overflow-hidden">
 
       {/* ── HERO ───────────────────────────────────────────── */}
-      <section className="relative px-6 pt-20 pb-28 max-w-6xl mx-auto">
+      <section className="relative px-6 pt-20 pb-28 max-w-6xl mx-auto spotlight">
         {/* Decorative blob */}
         <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full opacity-20 blur-3xl -z-10 bg-gradient-to-br ${theme.gradient}`} />
 
         <div className="flex flex-col lg:flex-row items-center gap-16">
           {/* Left: copy */}
-          <div className="flex-1 text-center lg:text-left fade-up">
+          <div className="flex-1 text-center lg:text-left fade-up relative z-10">
             {/* Trust badge */}
             <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full ${theme.badge} text-xs font-medium mb-6`}>
               <Zap size={12} />
@@ -96,11 +96,11 @@ export default function HomePage() {
           <p className="text-white/45">Browse by category or let our AI guide you</p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {cats.map(cat => (
+          {cats.map((cat, i) => (
             <Link
               key={cat.id}
               href={`/search?category=${cat.id}`}
-              className={`${theme.card} ${theme.cardHover} ${theme.glowHover} p-5 flex flex-col gap-2 group`}
+              className={`${theme.card} ${theme.cardHover} card-hover card-tilt p-5 flex flex-col gap-2 group reveal stagger-${Math.min(i + 1, 6)}`}
             >
               <span className="text-3xl">{cat.icon}</span>
               <span className="font-semibold text-white group-hover:${theme.textAccentBold} transition-colors">{cat.label}</span>
@@ -125,8 +125,8 @@ export default function HomePage() {
             <p className="text-white/45">From search to booked in under 5 minutes</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            {HOW_IT_WORKS.map(step => (
-              <div key={step.step} className="text-center">
+            {HOW_IT_WORKS.map((step, i) => (
+              <div key={step.step} className={`text-center reveal stagger-${i + 1}`}>
                 <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${theme.gradient} flex items-center justify-center text-2xl mx-auto mb-4`}>
                   {step.icon}
                 </div>
@@ -149,7 +149,7 @@ export default function HomePage() {
         </div>
         <div className="grid md:grid-cols-3 gap-6">
           {SOCIAL_PROOF.map((r, i) => (
-            <div key={i} className={`${theme.card} p-6`}>
+            <div key={i} className={`${theme.card} card-hover p-6 reveal stagger-${i + 1}`}>
               <div className="stars text-sm mb-3">{'★'.repeat(r.rating)}</div>
               <p className="text-white/70 text-sm leading-relaxed mb-4">&ldquo;{r.text}&rdquo;</p>
               <div>
@@ -176,8 +176,8 @@ export default function HomePage() {
               { icon: <Users size={22} />,  title: 'Same-provider continuity', desc: 'Families can re-book the same trusted provider effortlessly.' },
               { icon: <CheckCircle size={22} />, title: 'Transparent pricing', desc: 'Full quote upfront. No surprise call-out fees or hidden extras.' },
               { icon: <ArrowRight size={22} />, title: '5-min booking',  desc: 'Go from search to confirmed booking without leaving the app.' },
-            ].map(f => (
-              <div key={f.title} className={`${theme.card} p-5 flex gap-4 items-start`}>
+            ].map((f, i) => (
+              <div key={f.title} className={`${theme.card} card-hover p-5 flex gap-4 items-start reveal stagger-${Math.min(i + 1, 6)}`}>
                 <div className={`flex-shrink-0 w-10 h-10 rounded-xl ${theme.solidLight} flex items-center justify-center ${theme.textAccent}`}>
                   {f.icon}
                 </div>
