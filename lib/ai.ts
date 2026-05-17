@@ -254,6 +254,56 @@ function getKeys(envPrefix: string): string[] {
   return [...new Set(keys)]
 }
 
+// ── Provider exhaustion tracking ─────────────────────────────────────────────
+// Tracks which providers are rate-limited/exhausted and when they'll recover.
+// Cooldown prevents hammering an exhausted provider on every request.
+const FREE_PROVIDERS = new Set([
+  'ollama', 'groq', 'gemini', 'cerebras', 'together', 'openrouter', 'mistral', 'nvidia',
+])
+const PAID_PROVIDERS = new Set(['kimi', 'deepseek', 'perplexity', 'xai', 'cohere', 'openai', 'anthropic'])
+const EXHAUSTED_UNTIL = new Map<string, number>()  // provider → timestamp when cooldown expires
+const EXHAUSTION_COOLDOWN_MS = 5 * 60 * 1000       // 5min cooldown before retrying an exhausted provider
+const _alertedExhaustion = new Set<string>()        // avoid alert spam per session
+
+function markExhausted(provider: string) {
+  EXHAUSTED_UNTIL.set(provider, Date.now() + EXHAUSTION_COOLDOWN_MS)
+}
+
+function isExhausted(provider: string): boolean {
+  const until = EXHAUSTED_UNTIL.get(provider)
+  if (!until) return false
+  if (Date.now() > until) { EXHAUSTED_UNTIL.delete(provider); return false }
+  return true
+}
+
+function allFreeExhausted(): boolean {
+  return [...FREE_PROVIDERS].every(p => EXHAUSTED_UNTIL.has(p))
+}
+
+function sendExhaustionAlert(tried: string[]) {
+  const token  = process.env.TELEGRAM_BOT_TOKEN
+  const chatId = process.env.TELEGRAM_ALERT_CHAT ?? process.env.TELEGRAM_CHAT_ID
+  if (!token || !chatId) return
+  const project = process.env.NEXT_PUBLIC_APP_NAME ?? process.env.VERCEL_PROJECT_NAME ?? 'unknown'
+  const msg = [
+    `🔴 *All free AI providers exhausted*`,
+    `Project: \`${project}\``,
+    `Time: ${new Date().toUTCString()}`,
+    `Tried: ${tried.join(' → ')}`,
+    ``,
+    `⚡ *Action needed:*`,
+    `• Add more free API keys (Groq/Gemini/Cerebras)`,
+    `• Or wait ~5min for rate limits to reset`,
+    `• Check Edge Config disabled_providers`,
+    `• Falling back to paid providers...`,
+  ].join('\n')
+  fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'Markdown' }),
+  }).catch(() => {})
+}
+
 // ── Error classification ──────────────────────────────────────────────────────
 function isSkippable(msg: string): boolean {
   const m = msg.toLowerCase()
@@ -340,13 +390,14 @@ async function callGeneric(
     for (const key of keys) {
       try {
         const text = await withTimeout(callOAICompat(def.baseUrl, providerId, key, model, system, msgs, max), `${providerId}/${model}`)
-        if (text) return { text, model }
+        if (text) { EXHAUSTED_UNTIL.delete(providerId); return { text, model } }
       } catch (e: any) {
         if (isSkippable(e.message ?? '')) { console.warn(`[AI] ${providerId}/${model} skip: ${e.message?.slice(0, 80)}`); continue }
         throw e
       }
     }
   }
+  markExhausted(providerId)
   throw new Error(`${providerId}: all models/keys exhausted`)
 }
 
@@ -381,6 +432,10 @@ export async function callAI(
 
   for (const id of order) {
     if (disabled.has(id)) continue
+    if (isExhausted(id)) {
+      console.log(`[AI] ${id} in cooldown — skipping`)
+      continue
+    }
 
     try {
       let result: { text: string; model: string }
@@ -395,6 +450,11 @@ export async function callAI(
 
       if (result.text) {
         if (tried.length) console.warn(`[AI] fell back to ${id}/${result.model} after: ${tried.join(' → ')}`)
+        // Alert when hitting paid providers after free ones failed
+        if (PAID_PROVIDERS.has(id) && !_alertedExhaustion.has('paid-fallback')) {
+          _alertedExhaustion.add('paid-fallback')
+          sendExhaustionAlert(tried)
+        }
         return { text: result.text, provider: id, model: result.model }
       }
     } catch (e: any) {
@@ -402,6 +462,11 @@ export async function callAI(
       tried.push(`${id}(${msg.slice(0, 40)})`)
       if (!isSkippable(msg) && !msg.includes('no API key') && !msg.includes('not set')) {
         console.warn(`[AI] ${id} error — skipping. ${msg}`)
+      }
+      // Alert when all free providers are exhausted
+      if (allFreeExhausted() && !_alertedExhaustion.has('free-exhausted')) {
+        _alertedExhaustion.add('free-exhausted')
+        sendExhaustionAlert(tried)
       }
     }
   }
