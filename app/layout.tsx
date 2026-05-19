@@ -1,62 +1,62 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
-import config from '@/vertical.config'
-import { getMeshStyle, getScrollbarColor, COLOR_MAP } from '@/lib/themeColors'
-import Navbar from '@/components/Navbar'
-import DesignEffects from '@/components/DesignEffects'
-import PageTracker from '@/components/PageTracker'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title:       config.metaTitle,
-  description: config.metaDescription,
-  keywords:    config.keywords,
+  title: 'CampaignForge — AI Marketing in 60 Seconds',
+  description: 'Generate complete marketing campaigns: 5-email sequences, Facebook ads, and podcast scripts — forged by AI in under 60 seconds.',
+  icons: {
+    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>",
+  },
 }
-
-// Derive CSS custom properties from vertical theme at build time
-const colors   = COLOR_MAP[config.themeColor] ?? COLOR_MAP['violet']
-const meshStyle = getMeshStyle(config.themeColor)
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      className="h-full"
-      style={{
-        // CSS vars consumed by globals.css animations and scrollbar
-        '--theme-primary':   colors.primary,
-        '--theme-secondary': colors.secondary,
-        '--theme-base':      colors.base,
-        '--scrollbar-color': getScrollbarColor(config.themeColor),
-      } as React.CSSProperties}
-      suppressHydrationWarning
-    >
-      <body className={`${inter.className} min-h-full flex flex-col text-white`}
-        style={{ background: colors.base }}
-      >
-        {/* Dynamic mesh gradient bg — changes per vertical */}
-        <div style={meshStyle} />
+    <html lang="en">
+      <body style={{ minHeight: '100svh', overscrollBehavior: 'none' }}>
 
-        <DesignEffects />
-        <PageTracker site={config.id} />
-        <Navbar />
+        {/* Sticky glass nav */}
+        <header style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          height: 54,
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 24px',
+          justifyContent: 'space-between',
+          background: 'rgba(7,7,12,0.82)',
+          backdropFilter: 'blur(16px)',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+        }}>
+          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+            {/* Animated flame logo mark */}
+            <span className="logo-mark" aria-hidden>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1 14.5v-5l-3 3 1.5-6.5L12 10l1.5-4 3 7.5-3-2.5v5H11z"/>
+              </svg>
+            </span>
+            <span style={{
+              fontFamily: "'Outfit', system-ui, sans-serif",
+              fontWeight: 800,
+              fontSize: 16,
+              letterSpacing: '-0.03em',
+              color: 'var(--ink-1)',
+            }}>
+              Campaign<span style={{ color: 'var(--forge)' }}>Forge</span>
+            </span>
+          </a>
 
-        <main className="flex-1">
+          <nav style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+            <a href="#how" className="nav-link">
+              How it works
+            </a>
+          </nav>
+        </header>
+
+        <main style={{ position: 'relative', zIndex: 10 }}>
           {children}
         </main>
 
-        <footer className="border-t border-white/[0.06] py-8 px-6">
-          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-white/40 text-sm">
-            <span>© {new Date().getFullYear()} {config.name}. All rights reserved.</span>
-            <div className="flex gap-6">
-              <a href="/privacy" className="hover:text-white/70 transition-colors">Privacy</a>
-              <a href="/terms"   className="hover:text-white/70 transition-colors">Terms</a>
-              <a href="/contact" className="hover:text-white/70 transition-colors">Contact</a>
-            </div>
-          </div>
-        </footer>
       </body>
     </html>
   )

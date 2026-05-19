@@ -1,210 +1,506 @@
-import Link from 'next/link'
-import { ArrowRight, Star, Shield, Zap, Users, CheckCircle, ChevronRight } from 'lucide-react'
-import config from '@/vertical.config'
-import { theme, btn } from '@/lib/theme'
-import HeroChatPreview from '@/components/HeroChatPreview'
+'use client'
 
-const SOCIAL_PROOF = [
-  { name: 'Sarah M.', role: 'Used last week', text: `Found the perfect ${config.providerLabel.toLowerCase()} within 20 minutes. The AI understood exactly what I needed.`, rating: 5 },
-  { name: 'James T.', role: 'Regular user', text: `${config.name} has transformed how I find trusted professionals. No more scrolling through endless profiles.`, rating: 5 },
-  { name: 'Priya K.', role: 'Verified family', text: 'The background checks and reviews gave us real peace of mind. Would recommend to anyone.', rating: 5 },
+import { useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Mail, Monitor, Radio, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react'
+
+// ── Floating chatbot ─────────────────────────────────────
+function FloatingChat() {
+  const [open, setOpen] = useState(false)
+  const [msgs, setMsgs] = useState<{ role: 'user' | 'bot'; text: string }[]>([
+    { role: 'bot', text: 'Hi! Need help crafting your campaign brief or improving your copy? 🔥' },
+  ])
+  const [input, setInput] = useState('')
+
+  async function send() {
+    if (!input.trim()) return
+    const userMsg = input
+    setMsgs(m => [...m, { role: 'user', text: userMsg }])
+    setInput('')
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: userMsg }] }),
+      })
+      const data = await res.json()
+      setMsgs(m => [...m, { role: 'bot', text: data.text || 'Let me help you forge that campaign!' }])
+    } catch {
+      setMsgs(m => [...m, { role: 'bot', text: 'Campaign AI is warming up — try again in a moment.' }])
+    }
+  }
+
+  return (
+    <>
+      <motion.button
+        onClick={() => setOpen(o => !o)}
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.95 }}
+        style={{ position: 'fixed', bottom: 24, right: 24, width: 52, height: 52, borderRadius: '50%',
+          background: 'linear-gradient(135deg,#f97316,#ea580c)', border: 'none', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 4px 20px rgba(249,115,22,0.5)', zIndex: 1000, fontSize: 20 }}
+      >
+        {open ? '✕' : '🔥'}
+      </motion.button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.97 }}
+            transition={{ duration: 0.2 }}
+            style={{ position: 'fixed', bottom: 88, right: 24, width: 320, height: 420,
+              background: 'var(--bg-base)', border: '1px solid rgba(249,115,22,0.3)',
+              borderRadius: 16, display: 'flex', flexDirection: 'column', zIndex: 1000,
+              overflow: 'hidden', backdropFilter: 'blur(20px)' }}
+          >
+            <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(249,115,22,0.2)', fontSize: 13, fontWeight: 700, color: 'var(--ink-1)' }}>
+              CampaignForge AI
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {msgs.map((m, i) => (
+                <div key={i} style={{
+                  alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+                  background: m.role === 'user' ? 'rgba(249,115,22,0.2)' : 'rgba(255,255,255,0.05)',
+                  padding: '8px 12px', borderRadius: 10, fontSize: 12, color: 'var(--ink-2)', maxWidth: '85%',
+                }}>{m.text}</div>
+              ))}
+            </div>
+            <div style={{ padding: '10px 12px', borderTop: '1px solid rgba(249,115,22,0.15)', display: 'flex', gap: 8 }}>
+              <input value={input} onChange={e => setInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && send()}
+                placeholder="Ask about your campaign…"
+                style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(249,115,22,0.2)',
+                  borderRadius: 8, padding: '6px 10px', fontSize: 12, color: 'var(--ink-1)', outline: 'none' }} />
+              <button onClick={send}
+                style={{ background: 'linear-gradient(135deg,#f97316,#ea580c)', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 12, color: '#fff', cursor: 'pointer' }}>→</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  )
+}
+
+const STEPS = [
+  'Reading your brief…',
+  'Writing email sequence…',
+  'Crafting Facebook ads…',
+  'Scripting podcast episode…',
+  'Campaign ready!',
 ]
 
-const HOW_IT_WORKS = [
-  { icon: '💬', step: '1', title: 'Chat with our AI', desc: `Tell our AI assistant what you need. No forms — just a natural conversation.` },
-  { icon: '✨', step: '2', title: 'Get matched', desc: `AI shortlists the best ${config.providerPlural.toLowerCase()} based on your specific requirements.` },
-  { icon: '📅', step: '3', title: 'Book instantly', desc: `Review profiles, check availability, and confirm — all in one place.` },
+const TONES = ['professional', 'friendly', 'bold', 'inspirational'] as const
+type Tone = typeof TONES[number]
+
+const OUTPUTS = [
+  { icon: Mail,    label: '5 Emails',    desc: 'Nurture sequence · 0–14 days' },
+  { icon: Monitor, label: '3 Ad variants', desc: 'Facebook / Meta ready' },
+  { icon: Radio,   label: 'Podcast script', desc: 'Hook + outline + full script' },
 ]
 
 export default function HomePage() {
-  const cats = config.categories.slice(0, 6)
+  const router = useRouter()
+  const [name, setName]         = useState('')
+  const [category, setCategory] = useState('')
+  const [audience, setAudience] = useState('')
+  const [goal, setGoal]         = useState('')
+  const [tone, setTone]         = useState<Tone>('friendly')
+  const [loading, setLoading]   = useState(false)
+  const [activeStep, setActiveStep] = useState(-1)
+  const [error, setError]       = useState('')
+  const readerRef = useRef<ReadableStreamDefaultReader | null>(null)
+
+  const valid = name.trim() && category.trim() && audience.trim() && goal.trim()
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!valid || loading) return
+    setLoading(true)
+    setActiveStep(0)
+    setError('')
+
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, category, audience, goal, tone }),
+      })
+
+      const reader = res.body!.getReader()
+      readerRef.current = reader
+      const dec = new TextDecoder()
+      let buf = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += dec.decode(value, { stream: true })
+
+        const chunks = buf.split('\n\n')
+        buf = chunks.pop() ?? ''
+
+        for (const chunk of chunks) {
+          const lines = chunk.split('\n')
+          const eventLine = lines.find(l => l.startsWith('event: '))
+          const dataLine  = lines.find(l => l.startsWith('data: '))
+          if (!eventLine || !dataLine) continue
+
+          const event = eventLine.slice(7).trim()
+          const data  = JSON.parse(dataLine.slice(6))
+
+          if (event === 'step') setActiveStep(data.step)
+          else if (event === 'done') {
+            setActiveStep(STEPS.length - 1)
+            router.push(`/result/${data.id}`)
+          } else if (event === 'error') {
+            setError(data.message)
+            setLoading(false)
+            return
+          }
+        }
+      }
+    } catch {
+      setError('Connection failed. Please try again.')
+      setLoading(false)
+    }
+  }
 
   return (
-    <div className="overflow-hidden">
+    <>
+      {/* Background */}
+      <div className="forge-grid" aria-hidden />
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }} aria-hidden>
+        <div className="orb orb-forge-1" />
+        <div className="orb orb-forge-2" />
+        <div className="orb orb-forge-3" />
+      </div>
 
-      {/* ── HERO ───────────────────────────────────────────── */}
-      <section className="relative px-6 pt-20 pb-28 max-w-6xl mx-auto spotlight">
-        {/* Decorative blob */}
-        <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full opacity-20 blur-3xl -z-10 bg-gradient-to-br ${theme.gradient}`} />
+      {/* Hero */}
+      <section style={{
+        position: 'relative',
+        zIndex: 10,
+        minHeight: 'calc(100svh - 54px)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '48px 24px',
+      }}>
+        <div style={{ width: '100%', maxWidth: 1100 }}>
 
-        <div className="flex flex-col lg:flex-row items-center gap-16">
-          {/* Left: copy */}
-          <div className="flex-1 text-center lg:text-left fade-up relative z-10">
-            {/* Trust badge */}
-            <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full ${theme.badge} text-xs font-medium mb-6`}>
-              <Zap size={12} />
-              AI-Powered Matching — Free to Use
-            </div>
-
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-6">
-              <span className="text-white">{config.tagline.split('—')[0]}</span>
-              {config.tagline.includes('—') && (
-                <><br /><span className={theme.gradientText}>— {config.tagline.split('—')[1].trim()}</span></>
-              )}
-            </h1>
-
-            <p className="text-white/55 text-lg mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              Describe what you need in plain English. Our AI finds the best verified {config.providerPlural.toLowerCase()},
-              checks availability in real time, and helps you book in minutes — not days.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-              <Link href="/chat" className={btn.primary + ' text-base px-8 py-4'}>
-                Find my {config.providerLabel} <ArrowRight size={18} />
-              </Link>
-              <Link href="/providers" className={btn.secondary + ' text-base px-8 py-4'}>
-                I&apos;m a {config.providerLabel}
-              </Link>
-            </div>
-
-            {/* Trust row */}
-            <div className="flex flex-wrap items-center gap-5 mt-8 justify-center lg:justify-start text-sm text-white/45">
-              <span className="flex items-center gap-1.5"><CheckCircle size={14} className={theme.textAccent} />Background checked</span>
-              <span className="flex items-center gap-1.5"><CheckCircle size={14} className={theme.textAccent} />Real verified reviews</span>
-              <span className="flex items-center gap-1.5"><CheckCircle size={14} className={theme.textAccent} />No hidden fees</span>
-            </div>
-          </div>
-
-          {/* Right: AI chat preview */}
-          <div className="w-full lg:w-[400px] flex-shrink-0">
-            <HeroChatPreview />
-          </div>
-        </div>
-      </section>
-
-      {/* ── STATS BAR ───────────────────────────────────────── */}
-      <section className="border-y border-white/[0.06] py-8 glass">
-        <div className="max-w-5xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          {[
-            { n: '2,400+', l: `Verified ${config.providerPlural}` },
-            { n: '98%',    l: 'Satisfaction rate' },
-            { n: '< 5min', l: 'Avg match time' },
-            { n: '£0',     l: 'To browse & match' },
-          ].map(s => (
-            <div key={s.l}>
-              <div className={`text-2xl font-extrabold ${theme.gradientText}`}>{s.n}</div>
-              <div className="text-white/45 text-sm mt-1">{s.l}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── CATEGORIES ──────────────────────────────────────── */}
-      <section className="py-20 px-6 max-w-6xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-white mb-3">What do you need help with?</h2>
-          <p className="text-white/45">Browse by category or let our AI guide you</p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {cats.map((cat, i) => (
-            <Link
-              key={cat.id}
-              href={`/search?category=${cat.id}`}
-              className={`${theme.card} ${theme.cardHover} card-hover card-tilt p-5 flex flex-col gap-2 group reveal stagger-${Math.min(i + 1, 6)}`}
-            >
-              <span className="text-3xl">{cat.icon}</span>
-              <span className="font-semibold text-white group-hover:${theme.textAccentBold} transition-colors">{cat.label}</span>
-              <span className="text-white/45 text-xs leading-snug">{cat.desc}</span>
-            </Link>
-          ))}
-          <Link
-            href="/search"
-            className={`${theme.card} ${theme.cardHover} p-5 flex flex-col gap-2 items-center justify-center group`}
+          {/* Top badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}
           >
-            <ChevronRight size={28} className={`${theme.textAccent} group-hover:translate-x-1 transition-transform`} />
-            <span className="font-semibold text-white/60 text-sm">All categories</span>
-          </Link>
-        </div>
-      </section>
+            <span className="badge-forge">
+              <span style={{
+                width: 6, height: 6, borderRadius: '50%',
+                background: 'var(--forge)',
+                display: 'inline-block',
+                boxShadow: '0 0 8px var(--forge)',
+                animation: 'pulse 2s ease-in-out infinite',
+              }} />
+              AI Campaign Engine · Under 60 seconds
+            </span>
+          </motion.div>
 
-      {/* ── HOW IT WORKS ────────────────────────────────────── */}
-      <section className="py-20 px-6 glass border-y border-white/[0.06]">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white mb-3">How {config.name} works</h2>
-            <p className="text-white/45">From search to booked in under 5 minutes</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {HOW_IT_WORKS.map((step, i) => (
-              <div key={step.step} className={`text-center reveal stagger-${i + 1}`}>
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${theme.gradient} flex items-center justify-center text-2xl mx-auto mb-4`}>
-                  {step.icon}
-                </div>
-                <div className={`text-xs font-bold ${theme.textAccent} mb-2 uppercase tracking-widest`}>Step {step.step}</div>
-                <h3 className="font-bold text-white text-lg mb-2">{step.title}</h3>
-                <p className="text-white/50 text-sm leading-relaxed">{step.desc}</p>
+          {/* Two-column layout */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 48,
+            alignItems: 'start',
+          }} className="forge-grid-layout">
+
+            {/* Left — headline + outputs + stats */}
+            <motion.div
+              initial={{ opacity: 0, x: -24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <h1 style={{
+                fontFamily: "'Outfit', system-ui, sans-serif",
+                fontSize: 'clamp(2.2rem, 4vw, 3.4rem)',
+                fontWeight: 900,
+                letterSpacing: '-0.03em',
+                lineHeight: 1.06,
+                color: 'var(--ink-1)',
+                marginBottom: '1.1rem',
+              }}>
+                Your full marketing<br />
+                campaign,{' '}
+                <span style={{
+                  background: 'linear-gradient(135deg, #f97316 0%, #fb923c 50%, #fbbf24 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}>
+                  forged in 60s
+                </span>
+              </h1>
+
+              <p style={{
+                color: 'var(--ink-2)',
+                fontSize: 16,
+                lineHeight: 1.65,
+                marginBottom: '2rem',
+                maxWidth: 440,
+              }}>
+                Enter your business brief. Walk out with a 5-email nurture sequence, 3 Facebook ads, and a full podcast script — ready to publish.
+              </p>
+
+              {/* Output chips */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: '2.5rem' }}>
+                {OUTPUTS.map(({ icon: Icon, label, desc }, i) => (
+                  <motion.div
+                    key={label}
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + i * 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 14,
+                      padding: '12px 16px',
+                      background: 'var(--bg-raised)',
+                      border: '1px solid var(--border-s)',
+                      borderRadius: 12,
+                    }}
+                  >
+                    <span style={{
+                      width: 36, height: 36,
+                      borderRadius: 9,
+                      background: 'rgba(249,115,22,0.10)',
+                      border: '1px solid rgba(249,115,22,0.18)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      flexShrink: 0,
+                      color: 'var(--forge)',
+                    }}>
+                      <Icon size={16} />
+                    </span>
+                    <span>
+                      <span style={{ fontWeight: 600, fontSize: 14, color: 'var(--ink-1)', display: 'block' }}>{label}</span>
+                      <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{desc}</span>
+                    </span>
+                  </motion.div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* ── SOCIAL PROOF ────────────────────────────────────── */}
-      <section className="py-20 px-6 max-w-6xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-white mb-3">Trusted by real families</h2>
-          <div className="flex items-center justify-center gap-1 text-amber-400">
-            {'★★★★★'} <span className="text-white/50 text-sm ml-2">4.9 average from 1,200+ reviews</span>
-          </div>
-        </div>
-        <div className="grid md:grid-cols-3 gap-6">
-          {SOCIAL_PROOF.map((r, i) => (
-            <div key={i} className={`${theme.card} card-hover p-6 reveal stagger-${i + 1}`}>
-              <div className="stars text-sm mb-3">{'★'.repeat(r.rating)}</div>
-              <p className="text-white/70 text-sm leading-relaxed mb-4">&ldquo;{r.text}&rdquo;</p>
-              <div>
-                <div className="font-semibold text-white text-sm">{r.name}</div>
-                <div className="text-white/40 text-xs">{r.role}</div>
+              {/* Stats */}
+              <div style={{ display: 'flex', gap: 32 }}>
+                {[
+                  { n: '< 60s', label: 'to generate' },
+                  { n: '9 assets', label: 'per campaign' },
+                  { n: 'Free', label: 'to try' },
+                ].map(({ n, label }, i) => (
+                  <div key={n} style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+                    {i > 0 && <div style={{ width: 1, height: 20, background: 'var(--border-s)' }} />}
+                    <div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink-1)', fontFamily: "'Outfit', system-ui, sans-serif" }}>{n}</div>
+                      <div style={{ fontSize: 11, color: 'var(--ink-3)', marginTop: 1 }}>{label}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            </motion.div>
 
-      {/* ── TRUST FEATURES ──────────────────────────────────── */}
-      <section className="py-20 px-6 glass border-t border-white/[0.06]">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white mb-3">Why {config.name}?</h2>
-            <p className="text-white/45">We built what {config.name.slice(0,4)} was missing</p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { icon: <Shield size={22} />, title: 'Background checks', desc: 'Every provider is DBS/background checked before they can take bookings.' },
-              { icon: <Star size={22} />,   title: 'Portable reviews',  desc: `${config.providerPlural} own their reviews — they follow them everywhere, preventing gaming.` },
-              { icon: <Zap size={22} />,    title: 'AI matching',       desc: 'Describe your situation in plain English. No tick boxes, no wasted calls.' },
-              { icon: <Users size={22} />,  title: 'Same-provider continuity', desc: 'Families can re-book the same trusted provider effortlessly.' },
-              { icon: <CheckCircle size={22} />, title: 'Transparent pricing', desc: 'Full quote upfront. No surprise call-out fees or hidden extras.' },
-              { icon: <ArrowRight size={22} />, title: '5-min booking',  desc: 'Go from search to confirmed booking without leaving the app.' },
-            ].map((f, i) => (
-              <div key={f.title} className={`${theme.card} card-hover p-5 flex gap-4 items-start reveal stagger-${Math.min(i + 1, 6)}`}>
-                <div className={`flex-shrink-0 w-10 h-10 rounded-xl ${theme.solidLight} flex items-center justify-center ${theme.textAccent}`}>
-                  {f.icon}
-                </div>
-                <div>
-                  <h4 className="font-semibold text-white mb-1">{f.title}</h4>
-                  <p className="text-white/50 text-sm leading-relaxed">{f.desc}</p>
-                </div>
+            {/* Right — form card */}
+            <motion.div
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+            >
+              <div className="card-forge" style={{ padding: '24px 24px 20px' }}>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    <div>
+                      <label className="label">Business name</label>
+                      <input className="input" value={name} onChange={e => setName(e.target.value)}
+                        placeholder="Bella's Bakery" disabled={loading} />
+                    </div>
+                    <div>
+                      <label className="label">Industry</label>
+                      <input className="input" value={category} onChange={e => setCategory(e.target.value)}
+                        placeholder="Artisan bakery" disabled={loading} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="label">Target audience</label>
+                    <input className="input" value={audience} onChange={e => setAudience(e.target.value)}
+                      placeholder="Local families who want fresh, quality baked goods" disabled={loading} />
+                  </div>
+
+                  <div>
+                    <label className="label">Campaign goal</label>
+                    <input className="input" value={goal} onChange={e => setGoal(e.target.value)}
+                      placeholder="Grow email list and drive pre-orders" disabled={loading} />
+                  </div>
+
+                  <div>
+                    <label className="label">Tone</label>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                      {TONES.map(t => (
+                        <button key={t} type="button" disabled={loading}
+                          onClick={() => setTone(t)}
+                          className={`tone-pill${tone === t ? ' active' : ''}`}>
+                          {t.charAt(0).toUpperCase() + t.slice(1)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <AnimatePresence>
+                    {error && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        style={{
+                          padding: '10px 14px',
+                          background: 'rgba(248,113,113,0.08)',
+                          border: '1px solid rgba(248,113,113,0.20)',
+                          borderRadius: 9,
+                          fontSize: 13,
+                          color: '#f87171',
+                        }}
+                      >
+                        {error}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  <div style={{ marginTop: 2 }}>
+                    <button type="submit" disabled={!valid || loading} className="btn-forge">
+                      {loading ? (
+                        <>
+                          <Loader2 size={15} className="animate-spin" />
+                          Forging campaign…
+                        </>
+                      ) : (
+                        <>
+                          Forge campaign
+                          <ArrowRight size={15} />
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Step progress */}
+                  <AnimatePresence>
+                    {loading && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        style={{
+                          display: 'flex', flexDirection: 'column', gap: 8,
+                          paddingTop: 12,
+                          borderTop: '1px solid var(--border-s)',
+                          marginTop: 2,
+                        }}
+                      >
+                        {STEPS.map((label, i) => {
+                          const done   = i < activeStep
+                          const active = i === activeStep
+                          return (
+                            <motion.div
+                              key={i}
+                              initial={{ opacity: 0, x: -8 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: i * 0.06 }}
+                              style={{ display: 'flex', alignItems: 'center', gap: 10 }}
+                            >
+                              <span style={{ width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                {done ? (
+                                  <CheckCircle2 size={15} style={{ color: '#34d399' }} />
+                                ) : active ? (
+                                  <Loader2 size={13} className="animate-spin" style={{ color: 'var(--forge)' }} />
+                                ) : (
+                                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--ink-4)', display: 'block' }} />
+                                )}
+                              </span>
+                              <span style={{
+                                fontSize: 13,
+                                color: done ? '#34d399' : active ? 'var(--ink-1)' : 'var(--ink-4)',
+                                fontWeight: active ? 500 : 400,
+                                transition: 'color 0.2s',
+                              }}>
+                                {label}
+                              </span>
+                            </motion.div>
+                          )
+                        })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </form>
               </div>
-            ))}
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* ── FINAL CTA ───────────────────────────────────────── */}
-      <section className="py-24 px-6">
-        <div className={`max-w-3xl mx-auto text-center glass rounded-3xl p-12 border ${theme.border} relative overflow-hidden`}>
-          <div className={`absolute inset-0 bg-gradient-to-br ${theme.gradient} opacity-5 rounded-3xl`} />
-          <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4 relative">
-            Ready to find your perfect {config.providerLabel.toLowerCase()}?
+      {/* How it works */}
+      <section id="how" style={{
+        position: 'relative', zIndex: 10,
+        borderTop: '1px solid var(--border-s)',
+        padding: '64px 24px',
+      }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--forge)', textAlign: 'center', marginBottom: 10 }}>Process</p>
+          <h2 style={{
+            fontFamily: "'Outfit', system-ui, sans-serif",
+            fontSize: 28, fontWeight: 800, letterSpacing: '-0.025em',
+            textAlign: 'center', marginBottom: 36, color: 'var(--ink-1)',
+          }}>
+            Brief in. Campaign out.
           </h2>
-          <p className="text-white/50 mb-8 text-lg relative">Free to match. No card required. Takes 2 minutes.</p>
-          <Link href="/chat" className={btn.primary + ' text-base px-10 py-4 relative'}>
-            Get matched now <ArrowRight size={18} />
-          </Link>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+            {[
+              { n: '01', title: 'Fill the brief', body: 'Business name, audience, goal, tone. Takes 45 seconds.' },
+              { n: '02', title: 'AI forges everything', body: 'Emails, ads, podcast script generated in parallel. Specific to your business — no filler copy.' },
+              { n: '03', title: 'Copy and publish', body: 'Paste into Mailchimp, Meta Ads Manager, and your podcast host. Done.' },
+            ].map(({ n, title, body }, i) => (
+              <motion.div
+                key={n}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                style={{
+                  padding: '22px 22px 26px',
+                  background: 'var(--bg-raised)',
+                  border: '1px solid var(--border-d)',
+                  borderRadius: 14,
+                }}
+              >
+                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', color: 'var(--forge)', opacity: 0.65, marginBottom: 10 }}>{n}</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--ink-1)', marginBottom: 6, letterSpacing: '-0.01em', fontFamily: "'Outfit', system-ui, sans-serif" }}>{title}</div>
+                <div style={{ fontSize: 13, color: 'var(--ink-3)', lineHeight: 1.65 }}>{body}</div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-    </div>
+      {/* Responsive: single column on mobile */}
+      <style>{`
+        @media (max-width: 768px) {
+          .forge-grid-layout {
+            grid-template-columns: 1fr !important;
+            gap: 32px !important;
+          }
+        }
+      `}</style>
+      <FloatingChat />
+    </>
   )
 }

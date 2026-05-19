@@ -1,28 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { aiChat } from '@/lib/ai'
-import { guardRequest, guardAiInput } from '@/lib/abuse-guard'
+import Groq from 'groq-sdk'
 
-export const dynamic = 'force-dynamic'
+let _groq: Groq | null = null
+function groq(): Groq {
+  if (!_groq) _groq = new Groq({ apiKey: process.env.GROQ_API_KEY! })
+  return _groq
+}
 
 export async function POST(req: NextRequest) {
-  const block = guardRequest(req)
-  if (block) return block
-
   try {
-    const body = await req.json()
-    const { messages } = body
-    if (!messages || !Array.isArray(messages)) {
-      return NextResponse.json({ error: 'messages required' }, { status: 400 })
-    }
+    const { messages, system } = await req.json()
+    const sysPrompt = system ?? 'You are CampaignForge AI — a marketing expert. Help users create better campaigns: email sequences, Facebook ads, podcast scripts, and copywriting. Be concise and actionable.'
 
-    const lastUserMsg = messages.filter((m: { role: string }) => m.role === 'user').at(-1)?.content ?? ''
-    const inputBlock = guardAiInput(req, lastUserMsg)
-    if (inputBlock) return inputBlock
+    const res = await groq().chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [{ role: 'system', content: sysPrompt }, ...messages],
+      max_tokens: 500,
+      temperature: 0.7,
+    })
 
-    const reply = await aiChat(messages)
-    return NextResponse.json({ reply })
-  } catch (err) {
-    console.error('/api/chat error:', err)
-    return NextResponse.json({ reply: 'Sorry, I had trouble responding. Please try again in a moment.' }, { status: 200 })
+    const text = res.choices[0]?.message?.content ?? 'Let me help you forge that campaign!'
+    return NextResponse.json({ text })
+  } catch {
+    return NextResponse.json({ text: 'Campaign AI is warming up — try again in a moment.' }, { status: 200 })
   }
 }
