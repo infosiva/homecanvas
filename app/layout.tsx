@@ -1,17 +1,46 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import Script from 'next/script'
+import ChatBot from '@/components/ChatBot'
 
 export const metadata: Metadata = {
-  title: 'CampaignForge — AI Marketing in 60 Seconds',
-  description: 'Generate complete marketing campaigns: 5-email sequences, Facebook ads, and podcast scripts — forged by AI in under 60 seconds.',
+  metadataBase: new URL('https://agencyos.vercel.app'),
+  title: 'AgencyOS — Run a Full AI Agency with Zero Employees',
+  description: 'One brief. Blog + podcast + faceless video + LinkedIn + emails + clips + client report — all in 90 seconds. Replace 6 tools with one. Free to start.',
+  keywords: ['AI content agency', 'zero employee agency', 'faceless video AI', 'AI podcast generator', 'content automation', 'agency automation'],
+  openGraph: {
+    title: 'AgencyOS — Zero-Employee AI Content Agency',
+    description: 'One brief → 7 AI outputs in 90 seconds. Blog, podcast, video, LinkedIn, emails, clips, client report.',
+    type: 'website',
+  },
   icons: {
-    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>",
+    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>",
   },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          id="structured-data"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "AgencyOS",
+              "description": "AI-powered full-stack content agency — blog, podcast, video, social, email from one brief",
+              "applicationCategory": "MarketingApplication",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+              }
+            })
+          }}
+        />
+      </head>
       <body style={{ minHeight: '100svh', overscrollBehavior: 'none' }}>
 
         {/* Sticky glass nav */}
@@ -19,20 +48,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           position: 'sticky',
           top: 0,
           zIndex: 50,
-          height: 54,
+          height: 56,
           display: 'flex',
           alignItems: 'center',
           padding: '0 24px',
           justifyContent: 'space-between',
-          background: 'rgba(7,7,12,0.82)',
-          backdropFilter: 'blur(16px)',
+          background: 'rgba(5,5,9,0.85)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
           borderBottom: '1px solid rgba(255,255,255,0.05)',
         }}>
           <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-            {/* Animated flame logo mark */}
             <span className="logo-mark" aria-hidden>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1 14.5v-5l-3 3 1.5-6.5L12 10l1.5-4 3 7.5-3-2.5v5H11z"/>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
               </svg>
             </span>
             <span style={{
@@ -42,13 +71,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               letterSpacing: '-0.03em',
               color: 'var(--ink-1)',
             }}>
-              Campaign<span style={{ color: 'var(--forge)' }}>Forge</span>
+              Agency<span style={{ color: 'var(--aos)' }}>OS</span>
             </span>
           </a>
 
-          <nav style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-            <a href="#how" className="nav-link">
-              How it works
+          <nav style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+            <a href="#outputs" className="nav-link">Outputs</a>
+            <a href="#how" className="nav-link">How it works</a>
+            <a href="#pricing" className="nav-link">Pricing</a>
+            <a href="#pricing" className="btn-aos" style={{ padding: '8px 18px', fontSize: 13 }}>
+              Start free
             </a>
           </nav>
         </header>
@@ -56,7 +88,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main style={{ position: 'relative', zIndex: 10 }}>
           {children}
         </main>
-
+        <Script defer data-site="agencyos.vercel.app" src="http://31.97.56.148:3098/t.js" strategy="afterInteractive" />
+        <ChatBot />
       </body>
     </html>
   )
