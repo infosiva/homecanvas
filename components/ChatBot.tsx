@@ -2,13 +2,11 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 
-// KwizBot — violet theme, bottom-right, family quiz assistant
-const ACCENT = '#ec4899'
-const BOT_NAME = 'AgencyBot'
-const WELCOME = 'Hi! Ready to run your AI agency? Tell me what you need.'
-const SYSTEM_PROMPT = `You are KwizBot, the friendly AI assistant for Kwizzo — a fun family quiz game platform powered by AI.
-Help players with quiz topics, explain answers, suggest fun categories, and encourage learning through play.
-Keep responses short, upbeat, and family-friendly. Use simple language suitable for all ages.`
+// ForgeBot — orange theme, bottom-right, campaign content assistant
+const ACCENT = '#f97316'
+const BOT_NAME = 'ForgeBot'
+const WELCOME = 'What are you promoting? Tell me your product and audience — I\'ll map out your full content campaign.'
+const SYSTEM_PROMPT = `You are ForgeBot, the AI assistant for CampaignForge — a platform that turns one brief into a full content campaign (blog, podcast script, video, LinkedIn, email sequence) in under 90 seconds. You replace the need for a content team. Help users craft strong campaign briefs, pick the right content formats, and maximize output. Be specific, direct, and action-oriented. If a user describes their product, immediately suggest 2-3 campaign angles they could test.`
 
 interface Message {
   role: 'user' | 'assistant'
