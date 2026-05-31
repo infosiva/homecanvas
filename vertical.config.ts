@@ -70,10 +70,10 @@ export interface Category {
 
 const config: VerticalConfig = {
   // ── Elder Care ───────────────────────────────────────────
-  id:         'eldercare',
-  name:       'ElderCare+',
-  tagline:    'Trusted carers for your loved ones — found in minutes, not days',
-  domain:     'eldercare.plus',
+  id:         'homecanvas',
+  name:       'HomeCanvas',
+  tagline:    'Redesign any room in 30 seconds — just describe your style, AI does the rest.',
+  domain:     'homecanvas.app',
   themeColor: 'violet',
 
   providerLabel:  'Carer',
@@ -126,9 +126,9 @@ Be warm, empathetic, and reassuring — families are often stressed.`,
     careJournal:      true,
   },
 
-  metaTitle:       'ElderCare+ — Find Trusted Home Carers Near You',
-  metaDescription: 'AI-matched home carers for older adults. Background-checked, insured, reviewed by real families. Book a free consultation today.',
-  keywords:        ['home carer', 'elder care', 'elderly care at home', 'dementia carer', 'live-in carer'],
+  metaTitle:       'HomeCanvas — AI Interior Design & Room Visualization',
+  metaDescription: 'Redesign any room in 30 seconds. Upload your photo, pick your style, and watch AI transform it instantly. No design skills needed.',
+  keywords:        ['AI interior design', 'room visualization', 'room redesign AI', 'AI home decor', 'interior design tool'],
 }
 
 export default config
