@@ -74,7 +74,7 @@ const config: VerticalConfig = {
   name:       'HomeCanvas',
   tagline:    'Redesign any room in 30 seconds — just describe your style, AI does the rest.',
   domain:     'homecanvas.app',
-  themeColor: 'violet',
+  themeColor: 'rose',
 
   providerLabel:  'Carer',
   providerPlural: 'Carers',

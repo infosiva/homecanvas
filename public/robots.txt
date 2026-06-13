@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://homecanvas.app/sitemap.xml

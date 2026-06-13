@@ -5,15 +5,22 @@ import FloatingChatWrapper from '@/components/FloatingChatWrapper'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://homecanvas.app'),
-  title: 'HomeCanvas — AI Interior Design & Room Redesign',
-  description: 'Redesign any room in 30 seconds. Describe your style, AI generates stunning interior concepts instantly. Free to try — no design skills needed.',
-  keywords: ['AI interior design', 'room redesign', 'home decor AI', 'interior decorator', 'room makeover', 'AI home design'],
+  title: 'HomeCanvas — AI Interior Design & Room Visualization',
+  description: 'See your room transformed before you lift a finger. AI generates interior design concepts in 30 seconds — furniture, colour palette, layout. Free to try.',
+  keywords: ['AI interior design', 'room visualization', 'room redesign AI', 'AI home decor', 'interior design tool', 'room makeover AI'],
   openGraph: {
-    title: 'HomeCanvas — AI Interior Design',
-    description: 'Redesign any room in 30 seconds with AI. Free interior design concepts.',
+    title: 'HomeCanvas — AI Interior Design & Room Visualization',
+    description: 'See your room transformed before you lift a finger. AI generates design concepts in 30 seconds.',
     type: 'website',
     siteName: 'HomeCanvas',
     url: 'https://homecanvas.app',
+    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'HomeCanvas — AI Interior Design' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'HomeCanvas — AI Interior Design',
+    description: 'See your room transformed before you lift a finger. Free AI design in 30 seconds.',
+    images: ['/og.png'],
   },
   icons: {
     icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>",
@@ -24,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
+        <meta name="google-adsense-account" content="ca-pub-REPLACE_WITH_PUBLISHER_ID" />
         <Script
           id="structured-data"
           type="application/ld+json"
