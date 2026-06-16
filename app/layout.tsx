@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Script from 'next/script'
 import FloatingChatWrapper from '@/components/FloatingChatWrapper'
+import FeedbackWidget from '@/components/FeedbackWidget'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://homecanvas.app'),
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </main>
         <Script defer data-site="homecanvas.app" src="http://31.97.56.148:3098/t.js" strategy="afterInteractive" />
         <FloatingChatWrapper />
+        <FeedbackWidget siteName="HomeCanvas" />
       </body>
     </html>
   )
