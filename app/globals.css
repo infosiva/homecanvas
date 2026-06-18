@@ -10,6 +10,11 @@ html {
 }
 
 :root {
+  /* canonical portfolio vars */
+  --background: #fafaf9;
+  --accent:     #e11d48;
+  --accent-2:   #f43f5e;
+
   /* HomeCanvas brand — rose / off-white */
   --rose:      #e11d48;
   --rose-2:    #f43f5e;
