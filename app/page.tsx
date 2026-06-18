@@ -645,6 +645,7 @@ export default function HomePage() {
           <p style={{ fontSize: 13, color: 'var(--ink-4)', marginTop: 14 }}>
             Sign up to save your designs →
           </p>
+          <p className="text-xs opacity-60 mt-2">Have a promo code? <a href="#promo" className="underline">Apply here</a></p>
         </div>
       </section>
 
