@@ -55,7 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </main>
         <Script defer data-site="homecanvas.app" src="http://31.97.56.148:3098/t.js" strategy="afterInteractive" />
         <FloatingChatWrapper />
-        <FeedbackWidget siteName="HomeCanvas" />
+        <FeedbackWidget siteName="HomeCanvas" position="left" />
       </body>
     </html>
   )
