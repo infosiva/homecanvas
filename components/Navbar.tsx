@@ -51,9 +51,6 @@ export default function Navbar() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
-            <Link href="/login" className="text-[13px] text-white/40 hover:text-white/70 transition-colors px-2 py-1.5">
-              Log in
-            </Link>
             <Link href="/chat" className={`${btn.primary} btn-press text-[13px]`}>
               Get matched
             </Link>
@@ -90,7 +87,6 @@ export default function Navbar() {
             <Link href="/providers"    onClick={() => setOpen(false)} className="px-2 py-2.5 text-white/60 hover:text-white rounded-lg hover:bg-white/[0.04] transition-all">For {config.providerPlural}</Link>
             <Link href="/how-it-works" onClick={() => setOpen(false)} className="px-2 py-2.5 text-white/60 hover:text-white rounded-lg hover:bg-white/[0.04] transition-all">How it works</Link>
             <div className="h-px bg-white/[0.05] my-2" />
-            <Link href="/login"        onClick={() => setOpen(false)} className="px-2 py-2.5 text-white/50 hover:text-white rounded-lg hover:bg-white/[0.04] transition-all">Log in</Link>
             <Link href="/chat"         onClick={() => setOpen(false)} className={`${btn.primary} text-center py-2.5 mt-1`}>Get matched free</Link>
           </div>
         </div>
