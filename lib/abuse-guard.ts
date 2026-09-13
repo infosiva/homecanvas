@@ -138,6 +138,7 @@ const SUSPICIOUS_PATHS: RegExp[] = [
 
 // ── Telegram alert (non-blocking) ─────────────────────────────────────────────
 function alert(msg: string) {
+  if (process.env.TELEGRAM_NOTIFICATIONS_DISABLED === 'true') return
   const token  = process.env.TELEGRAM_BOT_TOKEN
   const chatId = process.env.TELEGRAM_ALERT_CHAT
   if (!token || !chatId) return
