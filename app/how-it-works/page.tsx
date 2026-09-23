@@ -38,7 +38,7 @@ const STEPS = [
 
 export default function HowItWorksPage() {
   return (
-    <div className="max-w-4xl mx-auto px-6 py-16">
+    <div className="max-w-4xl mx-auto px-6 py-16" style={{ background: '#080712' }}>
       <div className="text-center mb-16">
         <h1 className={`text-4xl font-extrabold mb-4 ${theme.gradientText}`}>How {config.name} works</h1>
         <p className="text-white/50 text-lg">From first search to trusted ongoing relationship</p>

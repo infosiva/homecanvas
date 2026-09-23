@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function ChatPage() {
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-4 py-12">
+    <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-4 py-12" style={{ background: '#080712' }}>
       <div className="w-full max-w-xl">
         <div className="text-center mb-6">
           <h1 className={`text-2xl font-bold ${theme.gradientText}`}>Find your {config.providerLabel}</h1>

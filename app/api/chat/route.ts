@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     const sysPrompt = system ?? 'You are CampaignForge AI — a marketing expert. Help users create better campaigns: email sequences, Facebook ads, podcast scripts, and copywriting. Be concise and actionable.'
 
     const res = await groq().chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+      model: 'qwen/qwen3.8-27b',
       messages: [{ role: 'system', content: sysPrompt }, ...messages],
       max_tokens: 500,
       temperature: 0.7,

@@ -70,7 +70,7 @@ export default function SearchPage() {
   })
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-12">
+    <div className="min-h-screen max-w-6xl mx-auto px-6 py-12" style={{ background: '#080712' }}>
       {/* Page header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">

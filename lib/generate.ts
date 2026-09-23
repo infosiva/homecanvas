@@ -10,7 +10,7 @@ function groq(): Groq {
 
 async function ask(prompt: string, system: string, maxTokens = 2000): Promise<string> {
   const res = await groq().chat.completions.create({
-    model: 'llama-3.3-70b-versatile',
+    model: 'qwen/qwen3.8-27b',
     messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
     max_tokens: maxTokens,
     temperature: 0.75,

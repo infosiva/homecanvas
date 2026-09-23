@@ -18,7 +18,7 @@ const STEPS = [
 
 export default function ProvidersPage() {
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-hidden min-h-screen" style={{ background: '#080712' }}>
       {/* Hero */}
       <section className="px-6 pt-20 pb-24 max-w-5xl mx-auto text-center relative">
         <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full opacity-15 blur-3xl -z-10 bg-gradient-to-br ${theme.gradient}`} />
