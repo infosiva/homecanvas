@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Script from 'next/script'
 import FloatingChatWrapper from '@/components/FloatingChatWrapper'
+import { getSiteFlags } from '@/lib/flags'
 import FeedbackWidget from '@/components/FeedbackWidget'
 
 export const metadata: Metadata = {
@@ -28,7 +29,8 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const flags = await getSiteFlags('homecanvas')
   return (
     <html lang="en">
       <head>
@@ -60,7 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </main>
         <Script defer data-site="homecanvas.app" src="http://31.97.56.148:3098/t.js" strategy="afterInteractive" />
-        <FloatingChatWrapper />
+        {flags.chatbot && <FloatingChatWrapper />}
         <FeedbackWidget siteName="HomeCanvas" position="left" />
       </body>
     </html>
