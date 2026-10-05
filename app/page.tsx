@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, Sparkles, Upload, Palette, Download, ChevronDown, ChevronUp, ThumbsUp, ThumbsDown, Home } from 'lucide-react'
+import { MagneticButton } from "@infosiva/shared-ui/modern";
 
 // ── Design styles ────────────────────────────────────────────
 const DESIGN_STYLES = [
@@ -409,8 +410,10 @@ export default function HomePage() {
               className="btn-rose"
               style={{ width: '100%', justifyContent: 'center', display: 'flex', textDecoration: 'none', fontSize: 16, padding: '15px 28px' }}
             >
-              Generate my design — free
-              <ArrowRight size={18} />
+              <MagneticButton type="button" className="btn-rose" style={{ width: '100%', justifyContent: 'center', display: 'flex', fontSize: 16, padding: '15px 28px' }}>
+                Generate my design — free
+                <ArrowRight size={18} />
+              </MagneticButton>
             </Link>
             <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--ink-4)', marginTop: 10 }}>
               No account needed · Results in ~30 seconds

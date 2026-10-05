@@ -5,6 +5,7 @@ import FloatingChatWrapper from '@/components/FloatingChatWrapper'
 import { getSiteFlags } from '@/lib/flags'
 import FeedbackWidget from '@/components/FeedbackWidget'
 
+import { MotionProvider } from "@infosiva/shared-ui/modern";
 export const metadata: Metadata = {
   metadataBase: new URL('https://homecanvas.app'),
   title: 'HomeCanvas — AI Interior Design & Room Visualization',
@@ -59,7 +60,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body style={{ minHeight: '100svh', overscrollBehavior: 'none' }}>
         <main style={{ position: 'relative', zIndex: 10 }}>
-          {children}
+          <MotionProvider>{children}</MotionProvider>
         </main>
         <Script defer data-site="homecanvas.app" src="http://31.97.56.148:3098/t.js" strategy="afterInteractive" />
         {flags.chatbot && <FloatingChatWrapper />}
