@@ -4,6 +4,7 @@ import Script from 'next/script'
 import FloatingChatWrapper from '@/components/FloatingChatWrapper'
 import { getSiteFlags } from '@/lib/flags'
 import FeedbackWidget from '@/components/FeedbackWidget'
+import { loadSiteTheme, buildThemeStyleTag, buildGa4Snippet } from '@/lib/theme-loader'
 
 import { MotionProvider } from "@infosiva/shared-ui/modern";
 export const metadata: Metadata = {
@@ -32,9 +33,13 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const flags = await getSiteFlags('homecanvas')
+  const theme = await loadSiteTheme('homecanvas')
+  const themeCss = buildThemeStyleTag(theme)
+  const ga4 = buildGa4Snippet(theme)
   return (
     <html lang="en">
       <head>
+        {themeCss ? <style dangerouslySetInnerHTML={{ __html: themeCss }} /> : null}
         <meta name="google-adsense-account" content="ca-pub-4237294630161176" />
         <Script
                   async
@@ -65,6 +70,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Script defer data-site="homecanvas.app" src="http://31.97.56.148:3098/t.js" strategy="afterInteractive" />
         {flags.chatbot && <FloatingChatWrapper />}
         <FeedbackWidget siteName="HomeCanvas" position="left" />
+        {ga4 && (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${theme?.analytics?.ga4Id}`} strategy="afterInteractive" />
+            <Script id="ga4-init" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: ga4 }} />
+          </>
+        )}
       </body>
     </html>
   )
