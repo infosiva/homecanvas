@@ -289,3 +289,5 @@ body {
 @media (max-width: 768px) {
   .ticker-inner { animation-duration: 20s; }
 }
+
+@media (max-width: 640px) { .nav-text { display: none !important; } }

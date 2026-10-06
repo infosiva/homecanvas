@@ -218,9 +218,9 @@ function HomeNavbar() {
           </span>
         </a>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <a href="/visualise" style={{ fontSize: 13, color: '#4a4541', textDecoration: 'none', fontWeight: 500 }}>Design</a>
-          <a href="#how" style={{ fontSize: 13, color: '#4a4541', textDecoration: 'none', fontWeight: 500 }}>How it works</a>
-          <a href="#pricing" style={{ fontSize: 13, color: '#4a4541', textDecoration: 'none', fontWeight: 500 }}>Pricing</a>
+          <a href="/visualise" className="nav-text" style={{ fontSize: 13, color: '#4a4541', textDecoration: 'none', fontWeight: 500 }}>Design</a>
+          <a href="#how" className="nav-text" style={{ fontSize: 13, color: '#4a4541', textDecoration: 'none', fontWeight: 500 }}>How it works</a>
+          <a href="#pricing" className="nav-text" style={{ fontSize: 13, color: '#4a4541', textDecoration: 'none', fontWeight: 500 }}>Pricing</a>
           <a href="/visualise" className="btn-rose" style={{ fontSize: 13, padding: '9px 20px' }}>
             Try free
           </a>
@@ -407,8 +407,7 @@ export default function HomePage() {
 
             <Link
               href={`/visualise?room=${encodeURIComponent(room)}&style=${style}`}
-              className="btn-rose"
-              style={{ width: '100%', justifyContent: 'center', display: 'flex', textDecoration: 'none', fontSize: 16, padding: '15px 28px' }}
+              style={{ display: 'block', textDecoration: 'none' }}
             >
               <MagneticButton type="button" className="btn-rose" style={{ width: '100%', justifyContent: 'center', display: 'flex', fontSize: 16, padding: '15px 28px' }}>
                 Generate my design — free
