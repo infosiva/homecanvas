@@ -67,7 +67,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <main style={{ position: 'relative', zIndex: 10 }}>
           <MotionProvider>{children}</MotionProvider>
         </main>
-        <Script defer data-site="homecanvas.app" src="http://31.97.56.148:3098/t.js" strategy="afterInteractive" />
+        <Script defer data-site="homecanvas.app" src="/t.js" strategy="afterInteractive" />
         {flags.chatbot && <FloatingChatWrapper />}
         <FeedbackWidget siteName="HomeCanvas" position="left" />
         {ga4 && (
