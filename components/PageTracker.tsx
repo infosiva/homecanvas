@@ -4,13 +4,12 @@
  * PageTracker — fires on every page navigation, sends to VPS tracker-api
  * Include once in layout.tsx. Zero user-visible impact.
  * Tracks: site, path, referrer, session_id, duration
- * View all data: GET http://31.97.56.148:3098/stats?key=sitestats2025
  */
 import { useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 
-const TRACKER = 'http://31.97.56.148:3098/track'
-const SESSION_ENDPOINT = 'http://31.97.56.148:3098/session'
+const TRACKER = '/track'
+const SESSION_ENDPOINT = '/session'
 
 function getSid(): string {
   try {
