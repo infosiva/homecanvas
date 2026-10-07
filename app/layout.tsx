@@ -5,6 +5,7 @@ import FloatingChatWrapper from '@/components/FloatingChatWrapper'
 import { getSiteFlags } from '@/lib/flags'
 import FeedbackWidget from '@/components/FeedbackWidget'
 import { loadSiteTheme, buildThemeStyleTag, buildGa4Snippet } from '@/lib/theme-loader'
+import { AnimatedBg } from '@/components/AnimatedBg'
 
 import { MotionProvider } from "@infosiva/shared-ui/modern";
 export const metadata: Metadata = {
@@ -64,6 +65,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body style={{ minHeight: '100svh', overscrollBehavior: 'none' }}>
+        <AnimatedBg theme={theme} fallback="none" />
         <main style={{ position: 'relative', zIndex: 10 }}>
           <MotionProvider>{children}</MotionProvider>
         </main>

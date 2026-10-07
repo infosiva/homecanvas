@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import Logo from './Logo'
 import config from '@/vertical.config'
 import { btn, theme } from '@/lib/theme'
 
@@ -27,19 +28,7 @@ export default function Navbar() {
         <div className="max-w-6xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group select-none">
-            <span
-              className="flex items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-110"
-              style={{ width: 26, height: 26, background: 'linear-gradient(135deg, #be123c, #e11d48)', flexShrink: 0 }}
-              aria-hidden
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M3 11l9-8 9 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                <path d="M5 10v9a1 1 0 001 1h12a1 1 0 001-1v-9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-              </svg>
-            </span>
-            <span className={`font-bold text-[15px] tracking-tight transition-opacity duration-150 group-hover:opacity-80 ${theme.gradientText}`}>
-              {config.name}
-            </span>
+            <Logo name={config.name} textClass={`transition-opacity duration-150 group-hover:opacity-80 ${theme.gradientText}`} />
           </Link>
 
           {/* Desktop links */}
